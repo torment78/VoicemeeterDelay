@@ -1,0 +1,405 @@
+<Window x:Class="VoicemeeterDelay.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Voicemeeter Delay"
+        Width="685"
+        Height="944"
+        MinWidth="685"
+        MinHeight="850"
+        Background="#111417"
+        FontFamily="Segoe UI"
+        FontSize="14"
+        WindowStartupLocation="CenterScreen">
+  <Window.Resources>
+    <Style x:Key="DarkButton" TargetType="Button">
+      <Setter Property="Background" Value="#27313A" />
+      <Setter Property="Foreground" Value="#EDF3F6" />
+      <Setter Property="BorderBrush" Value="#33414A" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="10,4" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="ButtonBorder"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="4"
+                    Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                RecognizesAccessKey="True" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ButtonBorder" Property="Background" Value="#33414A" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="ButtonBorder" Property="Background" Value="#1A2025" />
+                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#27313A" />
+                <Setter Property="Foreground" Value="#5F707A" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Window.Resources>
+
+  <Grid Margin="22">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0" Margin="0,0,0,18">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+
+      <StackPanel>
+        <TextBlock Text="Voicemeeter Delay"
+                   FontSize="26"
+                   FontWeight="SemiBold"
+                   Foreground="#EDF3F6" />
+        <TextBlock x:Name="MixerTypeTextBlock"
+                   Text="Voicemeeter not detected"
+                   Margin="0,3,0,0"
+                   Foreground="#9AA8B2" />
+      </StackPanel>
+
+      <Border x:Name="EngineStatusBorder"
+              Grid.Column="1"
+              Background="#222A30"
+              CornerRadius="6"
+              MinWidth="260"
+              MaxWidth="430"
+              Padding="12,6"
+              VerticalAlignment="Center">
+        <TextBlock x:Name="StatusTextBlock"
+                   Text="Engine stopped"
+                   FontWeight="SemiBold"
+                   TextAlignment="Center"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="#9AA8B2" />
+      </Border>
+    </Grid>
+
+    <Border Grid.Row="1"
+            Background="#1A2025"
+            BorderBrush="#33414A"
+            BorderThickness="1"
+            CornerRadius="7"
+            Padding="18"
+            Margin="0,0,0,16">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="150" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   Text="Side"
+                   VerticalAlignment="Center"
+                   FontWeight="SemiBold" />
+        <StackPanel Grid.Row="0"
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    Margin="0,0,0,12">
+          <Button x:Name="InputModeButton"
+                  Content="Input"
+                  Width="120"
+                  Background="#27313A"
+                  ToolTip="Show input strips and VAIO inputs for delay, volume, and routing."
+                  Click="InputModeButton_Click" />
+          <Button x:Name="OutputModeButton"
+                  Content="Output"
+                  Width="120"
+                  Margin="10,0,0,0"
+                  Background="#27313A"
+                  ToolTip="Show output buses for delay and volume changes."
+                  Click="OutputModeButton_Click" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="1"
+                   Grid.Column="0"
+                   Text="I/O"
+                   VerticalAlignment="Top"
+                   Margin="0,6,0,0"
+                   FontWeight="SemiBold" />
+        <WrapPanel x:Name="EndpointButtonsPanel"
+                   Grid.Row="1"
+                   Grid.Column="1"
+                   Margin="0,0,0,12" />
+
+        <TextBlock Grid.Row="2"
+                   Grid.Column="0"
+                   Text="Channels"
+                   VerticalAlignment="Top"
+                   Margin="0,6,0,0"
+                   FontWeight="SemiBold" />
+        <ScrollViewer Grid.Row="2"
+                      Grid.Column="1"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled"
+                      Margin="0,0,0,12">
+          <StackPanel x:Name="ChannelStripPanel"
+                      Orientation="Horizontal"
+                      MinHeight="210" />
+        </ScrollViewer>
+
+        <TextBlock Grid.Row="3"
+                   Grid.Column="0"
+                   Text="Apps"
+                   VerticalAlignment="Top"
+                   Margin="0,6,0,0"
+                   FontWeight="SemiBold" />
+        <Grid Grid.Row="3"
+              Grid.Column="1"
+              Margin="0,0,0,12">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+
+          <TextBlock x:Name="AppSessionsHeaderTextBlock"
+                     Grid.Row="0"
+                     Grid.Column="0"
+                     Text="Select a VAIO Extension input"
+                     Foreground="#9AA8B2"
+                     TextWrapping="Wrap"
+                     VerticalAlignment="Center"
+                     MaxHeight="44" />
+          <Button x:Name="RefreshAppsButton"
+                  Grid.Row="0"
+                  Grid.Column="1"
+                  Style="{StaticResource DarkButton}"
+                  Content="Refresh"
+                  Width="90"
+                  MinHeight="28"
+                  ToolTip="Read the applications currently connected to the selected VAIO extension input."
+                  Click="RefreshAppsButton_Click" />
+          <ListBox x:Name="AppSessionsListBox"
+                   Grid.Row="1"
+                   Grid.ColumnSpan="2"
+                   Height="118"
+                   Margin="0,6,0,0"
+                   Background="#11171B"
+                   Foreground="#EDF3F6"
+                   BorderBrush="#33414A"
+                   ScrollViewer.CanContentScroll="False"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ListBox.ItemContainerStyle>
+              <Style TargetType="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Padding" Value="4,2" />
+              </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           MaxWidth="{Binding ActualWidth, ElementName=AppSessionsListBox}"
+                           Foreground="#EDF3F6" />
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+
+        <TextBlock Grid.Row="4"
+                   Grid.Column="0"
+                   Text="VBAN"
+                   VerticalAlignment="Center"
+                   FontWeight="SemiBold" />
+        <WrapPanel Grid.Row="4"
+                   Grid.Column="1"
+                   Margin="0,0,0,12"
+                   VerticalAlignment="Center">
+          <CheckBox x:Name="VbanEnableCheckBox"
+                    Content="Enable"
+                    Foreground="#EDF3F6"
+                    VerticalAlignment="Center"
+                    Margin="0,0,12,0"
+                    ToolTip="Listen for MacroButtons VBAN-TEXT commands for this app." />
+          <TextBlock Text="Port"
+                     Foreground="#9AA8B2"
+                     VerticalAlignment="Center"
+                     Margin="0,0,5,0" />
+          <TextBox x:Name="VbanPortTextBox"
+                   Text="6981"
+                   Width="62"
+                   MinHeight="28"
+                   Background="#11171B"
+                   Foreground="#EDF3F6"
+                   BorderBrush="#33414A"
+                   HorizontalContentAlignment="Center"
+                   VerticalContentAlignment="Center"
+                   Margin="0,0,12,0"
+                   KeyDown="VbanControl_KeyDown"
+                   ToolTip="UDP port used by the app's VBAN command listener." />
+          <TextBlock Text="Stream"
+                     Foreground="#9AA8B2"
+                     VerticalAlignment="Center"
+                     Margin="0,0,5,0" />
+          <TextBox x:Name="VbanStreamTextBox"
+                   Text="Command1"
+                   Width="112"
+                   MinHeight="28"
+                   Background="#11171B"
+                   Foreground="#EDF3F6"
+                   BorderBrush="#33414A"
+                   VerticalContentAlignment="Center"
+                   Margin="0,0,12,0"
+                   KeyDown="VbanControl_KeyDown"
+                   ToolTip="VBAN-TEXT stream name sent by MacroButtons." />
+          <CheckBox x:Name="VbanLocalOnlyCheckBox"
+                    Content="Local only"
+                    IsChecked="True"
+                    Foreground="#EDF3F6"
+                    VerticalAlignment="Center"
+                    Margin="0,0,12,0"
+                    ToolTip="Only accept VBAN commands from this PC." />
+          <TextBlock x:Name="VbanStatusTextBlock"
+                     Text="VBAN off"
+                     Foreground="#9AA8B2"
+                     VerticalAlignment="Center" />
+        </WrapPanel>
+
+        <Expander x:Name="ApiFallbackExpander"
+                  Grid.Row="5"
+                  Grid.ColumnSpan="2"
+                  Header="API DLL fallback"
+                  Foreground="#EDF3F6">
+          <Grid Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="150" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       Text="Remote DLL"
+                       VerticalAlignment="Center"
+                       FontWeight="SemiBold" />
+            <TextBox x:Name="DllPathTextBox"
+                     Grid.Column="1"
+                     Margin="0,0,10,0"
+                     ToolTip="Leave blank to test the default Voicemeeter path first." />
+            <Button x:Name="BrowseButton"
+                    Grid.Column="2"
+                    Content="Browse"
+                    Background="#27313A"
+                    ToolTip="Pick a specific Voicemeeter Remote API DLL if the default path is not correct."
+                    Click="BrowseButton_Click" />
+          </Grid>
+        </Expander>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="2">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <Grid Grid.Row="0"
+            Margin="0,0,0,12">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0"
+                    Orientation="Horizontal">
+          <Button x:Name="ClearLogButton"
+                  Content="Clear Log"
+                  Width="110"
+                  Background="#27313A"
+                  ToolTip="Clear the status and warning log below."
+                  Click="ClearLogButton_Click" />
+          <Button x:Name="OpenCalibrationButton"
+                  Content="Round Trip"
+                  Width="110"
+                  Margin="10,0,0,0"
+                  Background="#27313A"
+                  ToolTip="Open the round-trip tester for measuring ping latency through selected Voicemeeter input and output devices."
+                  Click="OpenCalibrationButton_Click" />
+          <TextBlock x:Name="PathLatencyLabel"
+                     Text="Output floor"
+                     Foreground="#EDF3F6"
+                     Margin="18,0,6,0"
+                     VerticalAlignment="Center"
+                     FontWeight="SemiBold"
+                     Visibility="Collapsed" />
+          <TextBox x:Name="PathLatencyTextBox"
+                   Text="0"
+                   Width="62"
+                   MinHeight="28"
+                   Background="#11171B"
+                   Foreground="#EDF3F6"
+                   BorderBrush="#33414A"
+                   HorizontalContentAlignment="Center"
+                   VerticalContentAlignment="Center"
+                   LostFocus="PathLatencyTextBox_LostFocus"
+                   KeyDown="PathLatencyTextBox_KeyDown"
+                   ToolTip="Measured callback-path latency. Faders show this plus any extra delay-line time."
+                   Visibility="Collapsed" />
+          <TextBlock Text="ms"
+                     Foreground="#9AA8B2"
+                     Margin="5,0,0,0"
+                     VerticalAlignment="Center"
+                     Visibility="Collapsed" />
+          <CheckBox x:Name="ArmBothStreamsCheckBox"
+                    Content="Live-arm both"
+                    Foreground="#EDF3F6"
+                    Margin="18,0,0,0"
+                    VerticalAlignment="Center"
+                    Visibility="Collapsed"
+                    ToolTip="Unchecked: lower latency, only currently configured sides are armed. Checked: input/output can both be enabled live while running." />
+        </StackPanel>
+
+        <Button x:Name="OpenVbanCommandsButton"
+                Grid.Column="1"
+                Content="VBAN Commands"
+                Width="150"
+                Background="#27313A"
+                ToolTip="Open the MacroButtons VBAN-TEXT command reference."
+                Click="OpenVbanCommandsButton_Click" />
+      </Grid>
+
+      <Border Grid.Row="1"
+              Background="#11171B"
+              BorderBrush="#33414A"
+              BorderThickness="1"
+              CornerRadius="7"
+              Padding="12">
+        <TextBox x:Name="LogTextBox"
+                 Background="#11171B"
+                 Foreground="#EDF3F6"
+                 BorderThickness="0"
+                 FontFamily="Consolas"
+                 FontSize="13"
+                 IsReadOnly="True"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto" />
+      </Border>
+    </Grid>
+  </Grid>
+</Window>

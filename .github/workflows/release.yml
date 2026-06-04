@@ -1,0 +1,141 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, for example v1.0.0
+        required: true
+        type: string
+      prerelease:
+        description: Mark this release as a prerelease
+        required: false
+        type: boolean
+        default: false
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Publish Windows EXE
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Resolve release tag
+        shell: pwsh
+        run: |
+          $tag = "${{ github.event.inputs.tag }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            $tag = "${{ github.ref_name }}"
+          }
+
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            throw "Release tag was not provided."
+          }
+
+          $safeTag = $tag -replace '[^A-Za-z0-9._-]', '-'
+          "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "SAFE_TAG=$safeTag" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Restore
+        shell: pwsh
+        run: dotnet restore .\VoicemeeterDelay.csproj
+
+      - name: Publish single-file EXE
+        shell: pwsh
+        run: |
+          $publishDir = Join-Path $env:GITHUB_WORKSPACE "artifacts\publish"
+          $buildDir = Join-Path $env:GITHUB_WORKSPACE "artifacts\build"
+
+          dotnet publish .\VoicemeeterDelay.csproj `
+            -c Release `
+            -r win-x64 `
+            -p:PublishProfile=win-x64-single-file `
+            -p:SelfContained=false `
+            -p:OutputPath="$buildDir\" `
+            -o "$publishDir"
+
+      - name: Package release assets
+        shell: pwsh
+        run: |
+          $publishDir = Join-Path $env:GITHUB_WORKSPACE "artifacts\publish"
+          $releaseDir = Join-Path $env:GITHUB_WORKSPACE "artifacts\release"
+          New-Item -ItemType Directory -Force -Path $releaseDir | Out-Null
+
+          $exe = Join-Path $publishDir "VoicemeeterDelay.exe"
+          if (-not (Test-Path -LiteralPath $exe)) {
+            throw "Published EXE was not found at $exe"
+          }
+
+          $releaseExe = Join-Path $releaseDir "VoicemeeterDelay-$env:SAFE_TAG-win-x64.exe"
+          $releaseZip = Join-Path $releaseDir "VoicemeeterDelay-$env:SAFE_TAG-win-x64.zip"
+
+          Copy-Item -LiteralPath $exe -Destination $releaseExe -Force
+          Compress-Archive -Path (Join-Path $publishDir "*") -DestinationPath $releaseZip -Force
+
+          "RELEASE_EXE=$releaseExe" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "RELEASE_ZIP=$releaseZip" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoicemeeterDelay-${{ env.SAFE_TAG }}-win-x64
+          path: |
+            ${{ env.RELEASE_EXE }}
+            ${{ env.RELEASE_ZIP }}
+
+      - name: Create or update GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IS_PRERELEASE: ${{ github.event.inputs.prerelease }}
+        run: |
+          $assets = @($env:RELEASE_EXE, $env:RELEASE_ZIP)
+
+          gh release view $env:RELEASE_TAG *> $null
+          $releaseExists = $LASTEXITCODE -eq 0
+
+          if ($releaseExists) {
+            gh release upload $env:RELEASE_TAG @assets --clobber
+            if ($LASTEXITCODE -ne 0) {
+              throw "GitHub release asset upload failed."
+            }
+
+            return
+          }
+
+          $createArgs = @(
+            "release",
+            "create",
+            $env:RELEASE_TAG
+          )
+          $createArgs += $assets
+          $createArgs += @(
+            "--title",
+            $env:RELEASE_TAG,
+            "--notes",
+            "VoicemeeterDelay release $env:RELEASE_TAG",
+            "--target",
+            $env:GITHUB_SHA
+          )
+
+          if ($env:IS_PRERELEASE -eq "true") {
+            $createArgs += "--prerelease"
+          }
+
+          gh @createArgs
+          if ($LASTEXITCODE -ne 0) {
+            throw "GitHub release creation failed."
+          }

@@ -1,0 +1,263 @@
+<Window x:Class="VoicemeeterDelay.RoundTripCalibrationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Round Trip Calibration"
+        Width="760"
+        Height="650"
+        MinWidth="640"
+        MinHeight="610"
+        Background="{StaticResource FieldBrush}"
+        FontFamily="Segoe UI"
+        FontSize="14"
+        WindowStartupLocation="CenterOwner">
+  <Grid Margin="22">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="140" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <TextBlock Grid.Row="0"
+               Grid.Column="0"
+               Text="Ping input"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <ComboBox x:Name="PingInputComboBox"
+              Grid.Row="0"
+              Grid.Column="1"
+              Margin="0,0,0,12"
+              DisplayMemberPath="Name"
+              ToolTip="Windows playback device that sends the test ping into Voicemeeter."
+              SelectionChanged="EndpointComboBox_SelectionChanged" />
+
+    <TextBlock Grid.Row="1"
+               Grid.Column="0"
+               Text="Ping channel"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <ComboBox x:Name="PingChannelComboBox"
+              Grid.Row="1"
+              Grid.Column="1"
+              Margin="0,0,0,12"
+              DisplayMemberPath="Name"
+              ToolTip="Stereo side used for the ping signal."
+              SelectionChanged="ChannelComboBox_SelectionChanged" />
+
+    <TextBlock Grid.Row="2"
+               Grid.Column="0"
+               Text="Return output"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <ComboBox x:Name="ReturnOutputComboBox"
+              Grid.Row="2"
+              Grid.Column="1"
+              Margin="0,0,0,12"
+              DisplayMemberPath="Name"
+              ToolTip="Windows capture device that listens for the returned ping from Voicemeeter."
+              SelectionChanged="EndpointComboBox_SelectionChanged" />
+
+    <TextBlock Grid.Row="3"
+               Grid.Column="0"
+               Text="Return channel"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <ComboBox x:Name="ReturnChannelComboBox"
+              Grid.Row="3"
+              Grid.Column="1"
+              Margin="0,0,0,12"
+              DisplayMemberPath="Name"
+              ToolTip="Stereo side to listen on for the returned ping."
+              SelectionChanged="ChannelComboBox_SelectionChanged" />
+
+    <TextBlock Grid.Row="4"
+               Grid.Column="0"
+               Text="Wait"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <StackPanel Grid.Row="4"
+                Grid.Column="1"
+                Orientation="Horizontal"
+                Margin="0,0,0,12">
+      <TextBox x:Name="WaitSecondsTextBox"
+               Text="10"
+               Width="70"
+               HorizontalContentAlignment="Center"
+               ToolTip="Maximum seconds to wait for each ping return."
+               LostFocus="WaitSecondsTextBox_LostFocus" />
+      <TextBlock Text="seconds"
+                 Foreground="{StaticResource MutedBrush}"
+                 VerticalAlignment="Center"
+                 Margin="8,0,0,0" />
+    </StackPanel>
+
+    <TextBlock Grid.Row="5"
+               Grid.Column="0"
+               Text="Pings"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <StackPanel Grid.Row="5"
+                Grid.Column="1"
+                Orientation="Horizontal"
+                Margin="0,0,0,12">
+      <TextBox x:Name="CalibrationPingCountTextBox"
+               Text="10"
+               Width="70"
+               HorizontalContentAlignment="Center"
+               ToolTip="Number of pings to run for MS Test and Full Calibration."
+               LostFocus="CalibrationPingCountTextBox_LostFocus" />
+      <TextBlock Text="times"
+                 Foreground="{StaticResource MutedBrush}"
+                 VerticalAlignment="Center"
+                 Margin="8,0,0,0" />
+    </StackPanel>
+
+    <TextBlock Grid.Row="6"
+               Grid.Column="0"
+               Text="Full start"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <ComboBox x:Name="FullStartInputComboBox"
+              Grid.Row="6"
+              Grid.Column="1"
+              Margin="0,0,0,12"
+              DisplayMemberPath="Name"
+              ToolTip="First ping input included in Full Calibration."
+              SelectionChanged="EndpointComboBox_SelectionChanged" />
+
+    <TextBlock Grid.Row="7"
+               Grid.Column="0"
+               Text="Full finish"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <ComboBox x:Name="FullEndInputComboBox"
+              Grid.Row="7"
+              Grid.Column="1"
+              Margin="0,0,0,12"
+              DisplayMemberPath="Name"
+              ToolTip="Last ping input included in Full Calibration."
+              SelectionChanged="EndpointComboBox_SelectionChanged" />
+
+    <TextBlock Grid.Row="8"
+               Grid.Column="0"
+               Text="Full output"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <ComboBox x:Name="FullReturnOutputComboBox"
+              Grid.Row="8"
+              Grid.Column="1"
+              Margin="0,0,0,12"
+              DisplayMemberPath="Name"
+              ToolTip="Return output used as the reference listener for Full Calibration."
+              SelectionChanged="EndpointComboBox_SelectionChanged" />
+
+    <TextBlock Grid.Row="9"
+               Grid.Column="0"
+               Text="Full return ch"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"
+               Margin="0,0,12,12" />
+    <ComboBox x:Name="FullReturnChannelComboBox"
+              Grid.Row="9"
+              Grid.Column="1"
+              Margin="0,0,0,12"
+              DisplayMemberPath="Name"
+              ToolTip="Stereo side listened to during Full Calibration."
+              SelectionChanged="ChannelComboBox_SelectionChanged" />
+
+    <StackPanel Grid.Row="10"
+                Grid.Column="1"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Margin="0,2,0,14">
+      <StackPanel Orientation="Vertical"
+                  Width="96">
+        <Button x:Name="RefreshEndpointsButton"
+                Content="Refresh"
+                Width="92"
+                ToolTip="Reload Voicemeeter round-trip devices from Windows."
+                Click="RefreshEndpointsButton_Click" />
+        <Button x:Name="CancelButton"
+                Content="Cancel"
+                Width="92"
+                Margin="0,8,0,0"
+                Visibility="Collapsed"
+                ToolTip="Cancel the running ping test."
+                Click="CancelButton_Click" />
+      </StackPanel>
+      <Button x:Name="PingButton"
+              Content="Single Ping"
+              Width="112"
+              Margin="10,0,0,0"
+              VerticalAlignment="Top"
+              ToolTip="Send one ping and show the measured round-trip time."
+              Click="PingButton_Click" />
+      <Button x:Name="CalibrationButton"
+              Content="MS Test"
+              Width="100"
+              Margin="10,0,0,0"
+              VerticalAlignment="Top"
+              ToolTip="Run multiple pings and show average, median, min, and max timing."
+              Click="CalibrationButton_Click" />
+      <Button x:Name="FullCalibrationButton"
+              Content="Full Calibration"
+              Width="132"
+              Margin="10,0,0,0"
+              VerticalAlignment="Top"
+              ToolTip="Run the selected ping range against one return output and summarize each input."
+              Click="FullCalibrationButton_Click" />
+      <StackPanel Orientation="Vertical"
+                  Width="82"
+                  Margin="10,0,0,0">
+        <Button x:Name="CopyResultsButton"
+                Content="Copy"
+                Width="82"
+                ToolTip="Copy the current result text to the clipboard."
+                Click="CopyResultsButton_Click" />
+        <Button x:Name="PrintResultsButton"
+                Content="Print"
+                Width="82"
+                Margin="0,8,0,0"
+                ToolTip="Write the current result text to a dated text file on the desktop."
+                Click="PrintResultsButton_Click" />
+      </StackPanel>
+    </StackPanel>
+
+    <Border Grid.Row="11"
+            Grid.ColumnSpan="2"
+            Background="{StaticResource PanelBrush}"
+            BorderBrush="{StaticResource StrokeBrush}"
+            BorderThickness="1"
+            CornerRadius="6"
+            Padding="12">
+      <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+        <TextBlock x:Name="CalibrationStatusTextBlock"
+                   Text="Ready."
+                   TextWrapping="Wrap"
+                   Foreground="{StaticResource TextBrush}" />
+      </ScrollViewer>
+    </Border>
+  </Grid>
+</Window>
