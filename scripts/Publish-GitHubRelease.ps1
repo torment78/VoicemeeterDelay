@@ -141,8 +141,16 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 
 $viewArgs = @("release", "view", $Tag)
 $viewArgs += $repoArgs
-gh @viewArgs *> $null
-$releaseExists = $LASTEXITCODE -eq 0
+$previousErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+try {
+    gh @viewArgs *> $null
+    $releaseExists = $LASTEXITCODE -eq 0
+}
+finally {
+    $ErrorActionPreference = $previousErrorActionPreference
+}
+
 $assets = @($releaseExe, $releaseZip)
 
 if ($releaseExists) {
