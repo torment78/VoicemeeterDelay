@@ -25,4 +25,16 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="UploadGitHubReleaseAfterPublish" AfterTargets="Publish;PublishOnly" Condition="'$(GitHubReleaseUploadAfterPublish)' == 'true'">
+    <PropertyGroup>
+      <_GitHubRepositoryArg Condition="'$(GitHubRepository)' != ''">-Repository &quot;$(GitHubRepository)&quot;</_GitHubRepositoryArg>
+      <_GitHubReleaseDraftArg Condition="'$(GitHubReleaseDraft)' == 'true'">-Draft</_GitHubReleaseDraftArg>
+      <_GitHubReleasePrereleaseArg Condition="'$(GitHubReleasePrerelease)' == 'true'">-Prerelease</_GitHubReleasePrereleaseArg>
+      <_GitHubReleaseNoUploadArg Condition="'$(GitHubReleaseNoUpload)' == 'true'">-NoUpload</_GitHubReleaseNoUploadArg>
+    </PropertyGroup>
+
+    <Message Importance="high" Text="Publishing VoicemeeterDelay GitHub release $(GitHubReleaseTag)..." />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\scripts\Publish-GitHubRelease.ps1&quot; -Tag &quot;$(GitHubReleaseTag)&quot; -PublishedPath $(PublishDir) -Runtime &quot;$(RuntimeIdentifier)&quot; $(_GitHubRepositoryArg) $(_GitHubReleaseDraftArg) $(_GitHubReleasePrereleaseArg) $(_GitHubReleaseNoUploadArg)" />
+  </Target>
 </Project>

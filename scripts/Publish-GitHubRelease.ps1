@@ -114,21 +114,21 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $repoArgs = @()
+if (-not $Repository -and (Get-Command git -ErrorAction SilentlyContinue)) {
+    $origin = (git -C $repoRoot remote get-url origin 2>$null)
+    if ($LASTEXITCODE -eq 0 -and $origin) {
+        if ($origin -match 'github\.com[:/](?<owner>[^/]+)/(?<repo>[^/.]+)(\.git)?$') {
+            $Repository = "$($Matches.owner)/$($Matches.repo)"
+        }
+    }
+}
+
 if ($Repository) {
+    Write-Host "Using GitHub repository $Repository"
     $repoArgs += @("--repo", $Repository)
 }
 else {
-    $origin = $null
-    if (Get-Command git -ErrorAction SilentlyContinue) {
-        $origin = (git -C $repoRoot remote get-url origin 2>$null)
-        if ($LASTEXITCODE -ne 0) {
-            $origin = $null
-        }
-    }
-
-    if (-not $origin) {
-        Write-Warning "No git origin remote was found. GitHub CLI must have a default repo set, or set GitHubRepository in the publish profile."
-    }
+    Write-Warning "No GitHub repository was provided or detected. GitHub CLI will try to infer the repo from the current directory."
 }
 
 $target = $null
