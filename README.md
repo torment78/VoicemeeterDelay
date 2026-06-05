@@ -2,83 +2,90 @@
 
 ![Voicemeeter Delay social preview](Assets/VoicemeeterDelaySocialPreview.png)
 
-Small Windows WPF application that uses the Voicemeeter Remote API audio callback to delay audio samples.
+VoicemeeterDelay is a Windows control app for per-channel delay, volume trim, and routing inside Voicemeeter's audio callback path. It is built for cases where you need to line up sources, route one incoming channel to specific bus channels, or make small per-channel volume corrections without changing the whole strip or bus.
 
-Repository artwork is in `Assets`. Use `Assets/VoicemeeterDelaySocialPreview.png` as the GitHub repository social preview image.
+The app detects the running Voicemeeter edition, shows only the matching inputs and buses, and saves separate layouts for Standard, Banana, and Potato.
 
-## Requirements
+## What It Does
+
+- **Delay**: add full-millisecond delay per selected channel.
+- **Volume**: trim each selected channel from `0%` to `200%`, where `100%` is unity.
+- **Routing**: route an input channel to one or more output bus channels.
+- **Mute normal**: route a channel somewhere else while silencing its normal path.
+- **VBAN control**: receive MacroButtons VBAN-TEXT commands for delay, volume, enable, and routing changes.
+- **Round trip tester**: measure ping timing through selected Voicemeeter paths.
+- **Tray mode**: minimize to the system tray and reopen, open tools, or exit from the tray menu.
+
+## Runtime Requirements
 
 - Windows x64
-- .NET 8 SDK for building/debugging in Visual Studio
+- .NET 8 Desktop Runtime
 - Voicemeeter installed and running
 - `VoicemeeterRemote64.dll` in the default Voicemeeter install path, beside the app, on `PATH`, or selected from the API fallback picker
 
-## Visual Studio setup
+Build, Visual Studio, and release-publish instructions are in [`docs/BUILD.md`](docs/BUILD.md).
 
-1. Open Visual Studio Installer.
-2. Install the **.NET desktop development** workload.
-3. Open `VoicemeeterDelay.csproj` in Visual Studio.
-4. Set the solution platform to `x64`.
-5. Start Voicemeeter before running the app.
-6. Press `F5` to debug, or `Ctrl+F5` to run without debugging.
+## Quick Start
 
-The project targets `net8.0-windows`, uses WPF, and loads `VoicemeeterRemote64.dll` at runtime. It first tests the default Voicemeeter path under `Program Files (x86)\VB\Voicemeeter`. If the DLL is not found automatically, expand **API DLL fallback**, use Browse, and select it from the Voicemeeter install folder.
+1. Start Voicemeeter.
+2. Launch `VoicemeeterDelay.exe`.
+3. Pick **Input** or **Output**.
+4. Pick the strip or bus you want to edit.
+5. Tick the channel you want active.
+6. Set delay with the teal fader or millisecond box.
+7. Set volume with the gold fader or percent box.
+8. For input channels, enable **Route** to send that channel to one or more output bus channels.
+9. Minimize the app if desired; it keeps running from the system tray.
 
-The app calls `VBVMR_GetVoicemeeterType` after logging in to the Remote API. It detects the running mixer as Standard, Banana, or Potato and trims the visible input/output buttons to the matching strip and bus layout.
+Changes are live. You do not need to stop and restart the engine when ticking channels, changing faders, adjusting volume, or editing routes.
 
-## Build from PowerShell
+## Main Controls
 
-```powershell
-dotnet build .\VoicemeeterDelay.csproj -c Debug
-```
+**Input / Output** chooses which Voicemeeter callback side you are editing. Input covers hardware inputs and VAIO extension inputs. Output covers the Voicemeeter buses.
 
-## Publish Single EXE
+**I/O buttons** choose the specific strip or bus. Hardware inputs expose stereo channel controls. Virtual inputs and buses expose 8 channel controls.
 
-Visual Studio can publish with the `win-x64-single-file` profile. From PowerShell:
+**Channel tick** activates processing for that channel. If no channels or routes are enabled, the callback engine is bypassed.
 
-```powershell
-dotnet publish .\VoicemeeterDelay.csproj -c Release -r win-x64 -p:PublishProfile=win-x64-single-file
-```
+**Delay** uses the teal fader and millisecond box. Values are rounded to full milliseconds. Use the mouse wheel for 1 ms steps, or hold `Shift` while scrolling for 10 ms steps.
 
-The publish profile creates a framework-dependent Windows x64 single-file executable, so the EXE stays small and the PC running it needs the .NET 8 Desktop Runtime installed. Voicemeeter still needs to be installed because the app loads the Voicemeeter Remote API DLL from the default install path, beside the app, on `PATH`, or from the saved fallback path.
+**Volume** uses the gold fader and percent box. `100%` is unity, meaning the app follows the current Voicemeeter gain. Lower values attenuate; higher values boost.
 
-## Publish To GitHub Releases
+**Route** uses the green controls on input channels. A route can send one input channel to one or more output bus channels. **Mute normal** keeps the routed audio out of the source channel's normal path while still sending it to the selected destinations.
 
-The repo includes a GitHub Actions workflow at `.github\workflows\release.yml`. To publish from GitHub, commit and push the project, then create and push a version tag:
+**VBAN** uses the blue controls. Enable it when MacroButtons should control this app over VBAN-TEXT.
 
-```powershell
-git tag v1.0.0
-git push origin v1.0.0
-```
+## Routing
 
-The workflow publishes the Windows x64 single-file build and attaches both `VoicemeeterDelay-v1.0.0-win-x64.exe` and `VoicemeeterDelay-v1.0.0-win-x64.zip` to the GitHub Release.
+Routing is available on input channels. Click **Route**, then open the route editor to add destinations. Each destination chooses an output bus and a bus channel. You can add multiple destinations from the same input channel.
 
-You can also run the workflow manually from GitHub Actions with a tag value, or publish from this machine with GitHub CLI:
+Example use cases:
 
-```powershell
-gh auth login
-.\scripts\Publish-GitHubRelease.ps1 -Tag v1.0.0
-```
+- Send one VAIO channel directly to `B1 Ch 3`.
+- Send one hardware input channel to several output bus channels.
+- Delay a routed channel while muting the original normal path.
+- Keep normal processing untouched until the route checkbox is enabled.
 
-To build the release files without uploading them, run:
+## Round Trip Tester
 
-```powershell
-.\scripts\Publish-GitHubRelease.ps1 -Tag v1.0.0 -NoUpload
-```
+The **Round Trip** window can send a ping through selected Voicemeeter input and return paths. It can run single pings or multi-ping calibration passes and prints raw timing results that can be copied or saved.
 
-Visual Studio also has a `GitHubRelease` publish profile. In Visual Studio, right-click the project, choose **Publish**, select **GitHubRelease**, and click **Publish**. The profile publishes the framework-dependent single-file EXE, packages it, and then calls `scripts\Publish-GitHubRelease.ps1` to create or update the GitHub Release.
+This is useful for checking how much delay a Voicemeeter route or callback configuration actually adds on your system. Voicemeeter latency can vary by buffer state, so repeated measurements are more useful than a single number.
 
-The `GitHubRelease` profile uses `v$(Version)` as the release tag. To publish a different version, update the project `Version` property or edit `GitHubReleaseTag` in `Properties\PublishProfiles\GitHubRelease.pubxml`. The local repo needs a GitHub `origin` remote, or you can set `GitHubRepository` in that publish profile to `owner/repo`.
+## Saved Settings
 
-## Run
+The app saves:
 
-From Visual Studio, run the project and use the window controls.
+- selected input/output side
+- selected I/O endpoint
+- enabled channel ticks
+- delay and volume values
+- route destinations
+- mute-normal states
+- VBAN listener settings
+- API DLL fallback path
 
-From PowerShell:
-
-```powershell
-dotnet run --project .\VoicemeeterDelay.csproj
-```
+Profiles are stored separately for Standard, Banana, and Potato, so Potato-only channels do not get carried into Banana or Standard.
 
 ## MacroButtons VBAN Control
 
