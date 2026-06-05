@@ -30,7 +30,7 @@ public partial class MainWindow : Window
     private const double DefaultOutputPathLatencyMilliseconds = 0.0;
     private const double CompactEndpointWindowWidth = 685.0;
     private const double CompactEndpointWindowHeight = 944.0;
-    private const double WideEndpointWindowWidth = 1418.0;
+    private const double WideEndpointWindowWidth = 1600.0;
     private const double WideEndpointWindowHeight = 872.0;
     private const double MinimumEndpointWindowWidth = 685.0;
     private const double MinimumEndpointWindowHeight = 850.0;
