@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Drawing = System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -71,6 +72,7 @@ public partial class MainWindow : Window
     private RoundTripCalibrationWindow? _roundTripCalibrationWindow;
     private VbanCommandsWindow? _vbanCommandsWindow;
     private Forms.NotifyIcon? _trayIcon;
+    private Drawing.Icon? _applicationIcon;
     private VbanTextListener? _vbanTextListener;
     private bool _loadingSettings;
     private bool _suppressApplicationSessionRefresh;
@@ -120,19 +122,78 @@ public partial class MainWindow : Window
 
     private void InitializeTrayIcon()
     {
+        _applicationIcon = LoadApplicationIcon();
+
         var menu = new Forms.ContextMenuStrip();
         menu.Items.Add("Open", null, (_, _) => Dispatcher.Invoke(ShowFromTray));
+        menu.Items.Add("Hide to tray", null, (_, _) => Dispatcher.Invoke(() => HideToTray(showTip: false)));
+        menu.Items.Add(new Forms.ToolStripSeparator());
+        menu.Items.Add("Round trip tester", null, (_, _) => Dispatcher.Invoke(() =>
+        {
+            ShowFromTray();
+            OpenRoundTripCalibrationWindow();
+        }));
+        menu.Items.Add("VBAN commands", null, (_, _) => Dispatcher.Invoke(() =>
+        {
+            ShowFromTray();
+            OpenVbanCommandsWindow();
+        }));
+        menu.Items.Add("Settings", null, (_, _) => Dispatcher.Invoke(ShowSettingsFromTray));
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Exit", null, (_, _) => Dispatcher.Invoke(Close));
 
         _trayIcon = new Forms.NotifyIcon
         {
             ContextMenuStrip = menu,
-            Icon = Drawing.SystemIcons.Application,
-            Text = "Voicemeeter Delay",
+            Icon = _applicationIcon,
+            Text = FormatTrayText("Voicemeeter Delay - engine stopped"),
             Visible = true
         };
         _trayIcon.DoubleClick += (_, _) => Dispatcher.Invoke(ShowFromTray);
+    }
+
+    private static Drawing.Icon LoadApplicationIcon()
+    {
+        try
+        {
+            var processPath = Environment.ProcessPath;
+            if (!string.IsNullOrWhiteSpace(processPath))
+            {
+                var extractedIcon = Drawing.Icon.ExtractAssociatedIcon(processPath);
+                if (extractedIcon is not null)
+                {
+                    return extractedIcon;
+                }
+            }
+
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "VoicemeeterDelay.ico");
+            if (File.Exists(iconPath))
+            {
+                return new Drawing.Icon(iconPath);
+            }
+        }
+        catch
+        {
+            // Falling back to the stock icon is better than interrupting startup.
+        }
+
+        return (Drawing.Icon)Drawing.SystemIcons.Application.Clone();
+    }
+
+    private static string FormatTrayText(string text)
+    {
+        const int maximumTrayTextLength = 63;
+        return text.Length <= maximumTrayTextLength
+            ? text
+            : string.Concat(text.AsSpan(0, maximumTrayTextLength - 3), "...");
+    }
+
+    private void UpdateTrayText(string text)
+    {
+        if (_trayIcon is not null)
+        {
+            _trayIcon.Text = FormatTrayText(text);
+        }
     }
 
     private void MainWindow_StateChanged(object? sender, EventArgs e)
@@ -142,12 +203,20 @@ public partial class MainWindow : Window
             return;
         }
 
+        HideToTray(showTip: true);
+    }
+
+    private void HideToTray(bool showTip)
+    {
         Hide();
-        _trayIcon?.ShowBalloonTip(
-            1200,
-            "Voicemeeter Delay",
-            "Still running in the system tray.",
-            Forms.ToolTipIcon.Info);
+        if (showTip)
+        {
+            _trayIcon?.ShowBalloonTip(
+                1200,
+                "Voicemeeter Delay",
+                "Still running in the system tray.",
+                Forms.ToolTipIcon.Info);
+        }
     }
 
     private void ShowFromTray()
@@ -155,6 +224,14 @@ public partial class MainWindow : Window
         Show();
         WindowState = WindowState.Normal;
         Activate();
+    }
+
+    private void ShowSettingsFromTray()
+    {
+        ShowFromTray();
+        DllPathTextBox.BringIntoView();
+        DllPathTextBox.Focus();
+        DllPathTextBox.SelectAll();
     }
 
     private void SettingsSaveTimer_Tick(object? sender, EventArgs e)
@@ -881,6 +958,11 @@ public partial class MainWindow : Window
 
     private void OpenCalibrationButton_Click(object sender, RoutedEventArgs e)
     {
+        OpenRoundTripCalibrationWindow();
+    }
+
+    private void OpenRoundTripCalibrationWindow()
+    {
         if (_roundTripCalibrationWindow is { IsVisible: true } existingWindow)
         {
             existingWindow.Activate();
@@ -897,6 +979,11 @@ public partial class MainWindow : Window
     }
 
     private void OpenVbanCommandsButton_Click(object sender, RoutedEventArgs e)
+    {
+        OpenVbanCommandsWindow();
+    }
+
+    private void OpenVbanCommandsWindow()
     {
         if (_vbanCommandsWindow is { IsVisible: true } existingWindow)
         {
@@ -939,6 +1026,8 @@ public partial class MainWindow : Window
         SaveMainSettings();
         _trayIcon?.Dispose();
         _trayIcon = null;
+        _applicationIcon?.Dispose();
+        _applicationIcon = null;
         _vbanTextListener?.Dispose();
         _vbanTextListener = null;
         _callbackStatusTimer.Stop();
@@ -2375,13 +2464,15 @@ public partial class MainWindow : Window
     {
         var running = options is not null && options.RegisterMode != CallbackMode.None;
         _runningOptions = running ? options : null;
-        StatusTextBlock.Text = running && options is not null && _delay is not null
+        var statusText = running && options is not null && _delay is not null
             ? GetEngineStatusText(options, _delay.GetCallbackStats())
             : running && options is not null
                 ? GetEngineStatusText(options)
                 : "Engine stopped";
+        StatusTextBlock.Text = statusText;
         StatusTextBlock.ToolTip = running ? GetActiveTargetTooltip() : "Tick a channel to arm the engine.";
         StatusTextBlock.Foreground = running ? Brushes.White : StatusIdleTextBrush;
+        UpdateTrayText($"Voicemeeter Delay - {statusText}");
 
         EngineStatusBorder.Background = running ? RunningBrush : StatusIdleBrush;
 
@@ -2405,8 +2496,10 @@ public partial class MainWindow : Window
 
     private void UpdateRunningStatusText(AppOptions options, AudioCallbackStats stats)
     {
-        StatusTextBlock.Text = GetEngineStatusText(options, stats);
+        var statusText = GetEngineStatusText(options, stats);
+        StatusTextBlock.Text = statusText;
         StatusTextBlock.ToolTip = GetActiveTargetTooltip() + Environment.NewLine + Environment.NewLine + FormatCallbackStats(stats);
+        UpdateTrayText($"Voicemeeter Delay - {statusText}");
     }
 
     private void WarnIfRequestedCallbacksAreMissing(AppOptions options, AudioCallbackStats stats)

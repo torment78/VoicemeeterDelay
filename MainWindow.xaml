@@ -9,6 +9,7 @@
         Background="#111417"
         FontFamily="Segoe UI"
         FontSize="14"
+        Icon="Assets/VoicemeeterDelay.ico"
         WindowStartupLocation="CenterScreen">
   <Window.Resources>
     <Style x:Key="DarkButton" TargetType="Button">

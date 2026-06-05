@@ -1,6 +1,10 @@
 # VoicemeeterDelay
 
+![Voicemeeter Delay social preview](Assets/VoicemeeterDelaySocialPreview.png)
+
 Small Windows WPF application that uses the Voicemeeter Remote API audio callback to delay audio samples.
+
+Repository artwork is in `Assets`. Use `Assets/VoicemeeterDelaySocialPreview.png` as the GitHub repository social preview image.
 
 ## Requirements
 
