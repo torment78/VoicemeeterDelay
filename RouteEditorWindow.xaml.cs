@@ -14,6 +14,7 @@ public partial class RouteEditorWindow : Window
     private static readonly MediaBrush FieldBrush = new MediaSolidColorBrush(MediaColor.FromRgb(17, 23, 27));
     private static readonly MediaBrush TextBrush = new MediaSolidColorBrush(MediaColor.FromRgb(237, 243, 246));
     private static readonly MediaBrush SubtleBorderBrush = new MediaSolidColorBrush(MediaColor.FromRgb(51, 65, 74));
+    private static readonly MediaBrush RouteAccentBrush = new MediaSolidColorBrush(MediaColor.FromRgb(85, 194, 122));
 
     private readonly IReadOnlyList<RouteBusChoice> _buses;
     private readonly List<RouteDestinationSnapshot> _destinations;
@@ -80,9 +81,9 @@ public partial class RouteEditorWindow : Window
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(92) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(64) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(78) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(96) });
         row.Child = grid;
 
         var busComboBox = CreateBusComboBox(index, destination);
@@ -120,11 +121,11 @@ public partial class RouteEditorWindow : Window
         var removeButton = new Button
         {
             Content = "Remove",
-            Width = 78,
+            Width = 96,
             MinHeight = 28,
             Background = FieldBrush,
             Foreground = TextBrush,
-            BorderBrush = SubtleBorderBrush,
+            BorderBrush = RouteAccentBrush,
             ToolTip = "Remove this output destination from the route list."
         };
         removeButton.Click += (_, _) =>

@@ -60,15 +60,29 @@
         <ColumnDefinition Width="Auto" />
       </Grid.ColumnDefinitions>
 
-      <StackPanel>
-        <TextBlock Text="Voicemeeter Delay"
-                   FontSize="26"
-                   FontWeight="SemiBold"
-                   Foreground="#EDF3F6" />
-        <TextBlock x:Name="MixerTypeTextBlock"
-                   Text="Voicemeeter not detected"
-                   Margin="0,3,0,0"
-                   Foreground="#9AA8B2" />
+      <StackPanel Orientation="Horizontal">
+        <Border Width="62"
+                Height="62"
+                Margin="0,0,14,0"
+                Background="#1A2025"
+                BorderBrush="#33414A"
+                BorderThickness="1"
+                CornerRadius="8">
+          <Image Source="Assets/VoicemeeterDelayIconPreview.png"
+                 Width="54"
+                 Height="54"
+                 Stretch="Uniform" />
+        </Border>
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock Text="Voicemeeter Delay"
+                     FontSize="26"
+                     FontWeight="SemiBold"
+                     Foreground="#EDF3F6" />
+          <TextBlock x:Name="MixerTypeTextBlock"
+                     Text="Voicemeeter not detected"
+                     Margin="0,3,0,0"
+                     Foreground="#9AA8B2" />
+        </StackPanel>
       </StackPanel>
 
       <Border x:Name="EngineStatusBorder"
@@ -228,6 +242,7 @@
                    Grid.Column="0"
                    Text="VBAN"
                    VerticalAlignment="Center"
+                   Foreground="#3A6CDA"
                    FontWeight="SemiBold" />
         <WrapPanel Grid.Row="4"
                    Grid.Column="1"
@@ -235,7 +250,7 @@
                    VerticalAlignment="Center">
           <CheckBox x:Name="VbanEnableCheckBox"
                     Content="Enable"
-                    Foreground="#EDF3F6"
+                    Foreground="#3A6CDA"
                     VerticalAlignment="Center"
                     Margin="0,0,12,0"
                     ToolTip="Listen for MacroButtons VBAN-TEXT commands for this app." />
@@ -249,7 +264,7 @@
                    MinHeight="28"
                    Background="#11171B"
                    Foreground="#EDF3F6"
-                   BorderBrush="#33414A"
+                   BorderBrush="#3A6CDA"
                    HorizontalContentAlignment="Center"
                    VerticalContentAlignment="Center"
                    Margin="0,0,12,0"
@@ -265,7 +280,7 @@
                    MinHeight="28"
                    Background="#11171B"
                    Foreground="#EDF3F6"
-                   BorderBrush="#33414A"
+                   BorderBrush="#3A6CDA"
                    VerticalContentAlignment="Center"
                    Margin="0,0,12,0"
                    KeyDown="VbanControl_KeyDown"
@@ -273,13 +288,13 @@
           <CheckBox x:Name="VbanLocalOnlyCheckBox"
                     Content="Local only"
                     IsChecked="True"
-                    Foreground="#EDF3F6"
+                    Foreground="#3A6CDA"
                     VerticalAlignment="Center"
                     Margin="0,0,12,0"
                     ToolTip="Only accept VBAN commands from this PC." />
           <TextBlock x:Name="VbanStatusTextBlock"
                      Text="VBAN off"
-                     Foreground="#9AA8B2"
+                     Foreground="#3A6CDA"
                      VerticalAlignment="Center" />
         </WrapPanel>
 
@@ -380,7 +395,8 @@
                 Grid.Column="1"
                 Content="VBAN Commands"
                 Width="150"
-                Background="#27313A"
+                Background="#3A6CDA"
+                BorderBrush="#3A6CDA"
                 ToolTip="Open the MacroButtons VBAN-TEXT command reference."
                 Click="OpenVbanCommandsButton_Click" />
       </Grid>

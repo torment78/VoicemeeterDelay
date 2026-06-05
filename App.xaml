@@ -369,12 +369,14 @@
                      IsDirectionReversed="True">
                 <Track.DecreaseRepeatButton>
                   <RepeatButton Command="{x:Static Slider.DecreaseLarge}"
+                                Foreground="{TemplateBinding Foreground}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
                                 Focusable="False">
                     <RepeatButton.Template>
                       <ControlTemplate TargetType="{x:Type RepeatButton}">
                         <Border Width="8"
                                 HorizontalAlignment="Center"
-                                Background="{StaticResource AccentBrush}" />
+                                Background="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}" />
                       </ControlTemplate>
                     </RepeatButton.Template>
                   </RepeatButton>
@@ -404,12 +406,14 @@
 
                 <Track.IncreaseRepeatButton>
                   <RepeatButton Command="{x:Static Slider.IncreaseLarge}"
+                                Foreground="{TemplateBinding Foreground}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
                                 Focusable="False">
                     <RepeatButton.Template>
                       <ControlTemplate TargetType="{x:Type RepeatButton}">
                         <Border Width="8"
                                 HorizontalAlignment="Center"
-                                Background="{StaticResource GoodBrush}" />
+                                Background="{Binding BorderBrush, RelativeSource={RelativeSource TemplatedParent}}" />
                       </ControlTemplate>
                     </RepeatButton.Template>
                   </RepeatButton>

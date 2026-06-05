@@ -42,6 +42,11 @@ public partial class MainWindow : Window
     private static readonly Brush SelectedBrush = new SolidColorBrush(Color.FromRgb(34, 166, 179));
     private static readonly Brush ConfiguredBrush = new SolidColorBrush(Color.FromRgb(226, 184, 74));
     private static readonly Brush RunningBrush = new SolidColorBrush(Color.FromRgb(85, 194, 122));
+    private static readonly Brush DelayAccentBrush = new SolidColorBrush(Color.FromRgb(34, 166, 179));
+    private static readonly Brush RouteAccentBrush = new SolidColorBrush(Color.FromRgb(85, 194, 122));
+    private static readonly Brush RouteActiveBrush = new SolidColorBrush(Color.FromRgb(20, 57, 47));
+    private static readonly Brush VolumeAccentBrush = new SolidColorBrush(Color.FromRgb(226, 184, 74));
+    private static readonly Brush VbanAccentBrush = new SolidColorBrush(Color.FromRgb(58, 108, 218));
     private static readonly Brush StatusIdleBrush = new SolidColorBrush(Color.FromRgb(34, 42, 48));
     private static readonly Brush StatusIdleTextBrush = new SolidColorBrush(Color.FromRgb(154, 168, 178));
     private static readonly Brush PanelBrush = new SolidColorBrush(Color.FromRgb(26, 32, 37));
@@ -1212,7 +1217,7 @@ public partial class MainWindow : Window
         {
             Text = "Delay",
             FontSize = 11,
-            Foreground = MutedBrush,
+            Foreground = DelayAccentBrush,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 0, 0, 4)
         });
@@ -1229,7 +1234,9 @@ public partial class MainWindow : Window
             Width = 34,
             Height = 128,
             HorizontalAlignment = HorizontalAlignment.Center,
-            Background = FieldBrush
+            Background = FieldBrush,
+            BorderBrush = DelayAccentBrush,
+            BorderThickness = new Thickness(1)
         };
         sliderHost.Children.Add(sliderBackground);
 
@@ -1243,7 +1250,8 @@ public partial class MainWindow : Window
             Width = 34,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 0, 0, 0),
-            Foreground = SelectedBrush,
+            Foreground = DelayAccentBrush,
+            BorderBrush = VbanAccentBrush,
             Background = Brushes.Transparent,
             Style = (Style)FindResource("ChannelVerticalSlider"),
             TickFrequency = 10,
@@ -1267,7 +1275,7 @@ public partial class MainWindow : Window
             Margin = new Thickness(0, 6, 0, 0),
             Background = FieldBrush,
             Foreground = TextBrush,
-            BorderBrush = SubtleBorderBrush,
+            BorderBrush = DelayAccentBrush,
             HorizontalContentAlignment = HorizontalAlignment.Center,
             VerticalContentAlignment = VerticalAlignment.Center,
             IsEnabled = routeControlsEnabled,
@@ -1282,7 +1290,7 @@ public partial class MainWindow : Window
         {
             Text = "ms",
             FontSize = 11,
-            Foreground = MutedBrush,
+            Foreground = DelayAccentBrush,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 2, 0, 0)
         });
@@ -1298,7 +1306,7 @@ public partial class MainWindow : Window
         {
             Text = "Volume",
             FontSize = 11,
-            Foreground = MutedBrush,
+            Foreground = VolumeAccentBrush,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 0, 0, 4)
         });
@@ -1314,7 +1322,9 @@ public partial class MainWindow : Window
             Width = 34,
             Height = 128,
             HorizontalAlignment = HorizontalAlignment.Center,
-            Background = FieldBrush
+            Background = FieldBrush,
+            BorderBrush = VolumeAccentBrush,
+            BorderThickness = new Thickness(1)
         });
 
         var volumeSlider = new Slider
@@ -1332,6 +1342,8 @@ public partial class MainWindow : Window
             IsSnapToTickEnabled = false,
             IsEnabled = routeControlsEnabled,
             Tag = offset,
+            Foreground = VolumeAccentBrush,
+            BorderBrush = VolumeAccentBrush,
             Background = Brushes.Transparent,
             Style = (Style)FindResource("ChannelVerticalSlider"),
             ToolTip = "Channel volume trim. 100% is unity: it follows the current Voicemeeter gain; lower attenuates, higher boosts."
@@ -1349,7 +1361,7 @@ public partial class MainWindow : Window
             Margin = new Thickness(0, 6, 0, 0),
             Background = FieldBrush,
             Foreground = TextBrush,
-            BorderBrush = SubtleBorderBrush,
+            BorderBrush = VolumeAccentBrush,
             HorizontalContentAlignment = HorizontalAlignment.Center,
             VerticalContentAlignment = VerticalAlignment.Center,
             IsEnabled = routeControlsEnabled,
@@ -1364,7 +1376,7 @@ public partial class MainWindow : Window
         {
             Text = "Unity",
             FontSize = 11,
-            Foreground = MutedBrush,
+            Foreground = VolumeAccentBrush,
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 2, 0, 0)
         });
@@ -1411,7 +1423,7 @@ public partial class MainWindow : Window
             Content = "Route",
             IsChecked = settings.RouteEnabled[offset],
             Tag = offset,
-            Foreground = TextBrush,
+            Foreground = RouteAccentBrush,
             HorizontalAlignment = HorizontalAlignment.Left,
             ToolTip = "Send this input channel to one or more output bus channels."
         };
@@ -1425,7 +1437,7 @@ public partial class MainWindow : Window
             Margin = new Thickness(0, 6, 0, 0),
             Background = FieldBrush,
             Foreground = TextBrush,
-            BorderBrush = SubtleBorderBrush,
+            BorderBrush = RouteAccentBrush,
             ToolTip = "Edit route destinations"
         };
         routeButton.Click += RouteButton_Click;
@@ -1436,7 +1448,7 @@ public partial class MainWindow : Window
             Content = "Mute normal",
             IsChecked = settings.RouteMuteNormal[offset],
             Tag = offset,
-            Foreground = TextBrush,
+            Foreground = RouteAccentBrush,
             FontSize = 11,
             Margin = new Thickness(0, 6, 0, 0),
             ToolTip = "Silence this input channel's normal path while still routing it to the selected destinations."
@@ -1772,20 +1784,32 @@ public partial class MainWindow : Window
         editor.DelayTextBox.IsEnabled = fadersEnabled;
         editor.VolumeSlider.IsEnabled = fadersEnabled;
         editor.VolumeTextBox.IsEnabled = fadersEnabled;
+        editor.Container.BorderBrush = routeEnabled
+            ? RouteAccentBrush
+            : channelEnabled
+                ? DelayAccentBrush
+                : SubtleBorderBrush;
+        editor.Container.BorderThickness = new Thickness(fadersEnabled ? 2 : 1);
+        editor.CheckBox.Foreground = channelEnabled ? DelayAccentBrush : TextBrush;
 
         if (editor.RouteCheckBox is not null)
         {
             editor.RouteCheckBox.IsEnabled = true;
+            editor.RouteCheckBox.Foreground = routeEnabled ? RouteAccentBrush : MutedBrush;
         }
 
         if (editor.RouteButton is not null)
         {
             editor.RouteButton.IsEnabled = true;
+            editor.RouteButton.Background = routeEnabled ? RouteActiveBrush : FieldBrush;
+            editor.RouteButton.BorderBrush = routeEnabled ? RouteAccentBrush : SubtleBorderBrush;
+            editor.RouteButton.Foreground = routeEnabled ? RouteAccentBrush : TextBrush;
         }
 
         if (editor.RouteMuteNormalCheckBox is not null)
         {
             editor.RouteMuteNormalCheckBox.IsEnabled = routeEnabled;
+            editor.RouteMuteNormalCheckBox.Foreground = routeEnabled ? RouteAccentBrush : MutedBrush;
         }
     }
 

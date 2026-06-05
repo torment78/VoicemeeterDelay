@@ -19,13 +19,14 @@
   <ItemGroup>
     <None Remove="Assets\VoicemeeterDelay.ico" />
     <Resource Include="Assets\VoicemeeterDelay.ico" />
+    <None Remove="Assets\VoicemeeterDelayIconPreview.png" />
+    <Content Include="Assets\VoicemeeterDelayIconPreview.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Update="README.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </None>
-    <None Update="Assets\VoicemeeterDelayIconPreview.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
